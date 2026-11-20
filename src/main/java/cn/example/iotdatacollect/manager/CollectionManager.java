@@ -63,7 +63,11 @@ public class CollectionManager {
             collector.start(config, sink::publish);
             running.put(config.deviceId(), collector);
         } catch (Exception e) {
-            collector.close();
+            try {
+                collector.close();
+            } catch (Exception closeError) {
+                e.addSuppressed(closeError);
+            }
             throw e;
         }
     }

@@ -40,6 +40,7 @@ public class MqttCollector implements DeviceCollector {
     @Override
     public void start(DeviceConfig config, Consumer<DeviceData> consumer) throws Exception {
         String broker = "tcp://" + config.host() + ":" + config.port();
+        // 1. 连接 MQTT Broker
         client = new MqttAsyncClient(
                 broker,
                 "collector-" + UUID.randomUUID()
@@ -62,13 +63,15 @@ public class MqttCollector implements DeviceCollector {
             public void messageArrived(
                     String topic,
                     MqttMessage message) {
+                // 3. 接收设备上报的消息
                 String payload = new String(message.getPayload(),  StandardCharsets.UTF_8);
-
+                // 2. 订阅配置的 Topic
                 for (DevicePoint point : config.points()) {
                     if (!point.address().equals(topic)) {
                         continue;
                     }
-
+                    // 4. 将消息解析成 DeviceData
+                    // 5. 通过 consumer 输出
                     consumer.accept(new DeviceData(
                             config.deviceId(),
                             point.pointId(),
@@ -95,8 +98,10 @@ public class MqttCollector implements DeviceCollector {
     @Override
     public void close() throws Exception {
         if (client != null) {
-            client.disconnect().waitForCompletion(3000);
+            if (client.isConnected()) {
+                client.disconnect().waitForCompletion(3000);
+            }
+            client.close();
         }
-        client.close();
     }
 }

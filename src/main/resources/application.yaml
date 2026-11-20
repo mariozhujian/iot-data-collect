@@ -1,3 +1,42 @@
 spring:
   application:
     name: iot-data-collect
+
+
+
+industrial:
+  devices:
+    - deviceId: PLC_001
+      protocol: MODBUS
+      host: 192.168.1.100
+      port: 502
+      slaveId: 1
+      intervalMs: 1000
+      points:
+        - pointId: temperature
+          address: "100"
+          dataType: INT16
+        - pointId: pressure
+          address: "102"
+          dataType: FLOAT32
+
+    - deviceId: MQTT_001
+      protocol: MQTT
+      host: 192.168.1.101
+      port: 1883
+      intervalMs: 0
+      points:
+        - pointId: temperature
+          address: "factory/device01/temperature"
+          dataType: FLOAT
+
+    - deviceId: OPC_001
+      protocol: OPC_UA
+      host: 192.168.1.102
+      port: 4840
+      intervalMs: 1000
+      points:
+        - pointId: motor_speed
+          address: "ns=2;s=Motor.Speed"
+          dataType: FLOAT
+
